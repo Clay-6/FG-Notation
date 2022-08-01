@@ -5,7 +5,7 @@ use thiserror::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Move {
-    jumping: bool,
+    modifier: Option<Modifier>,
     motion: Motion,
     button: Button,
 }
@@ -16,13 +16,12 @@ pub struct Motion(String);
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Button(String);
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Modifier {
     Jumping,
     JumpCancel,
     Close,
     TigerKnee,
-    Other(String),
 }
 
 #[derive(Debug, Error)]
@@ -31,7 +30,7 @@ pub enum CreationError {
     InvalidMotion,
     #[error("Invalid button. Buttons can only consist of ASCII alphabetic characters")]
     InvalidButton,
-    #[error("Invalid modifier. Modifiers must contain a '.'")]
+    #[error("Invalid modifier. Valid modifiers are 'j', 'jc', 'c', & 'tk'")]
     InvalidModifier,
 }
 
@@ -41,16 +40,7 @@ impl Move {
         S: ToString,
     {
         let mut input = input.to_string().trim().to_string();
-        let jumping = if input.starts_with('j') {
-            input.remove(0); // Remove 'j'
-            true
-        } else if input.starts_with("j.") {
-            input.remove(0); // Remove 'j'
-            input.remove(0); // Remove '.'
-            true
-        } else {
-            false
-        };
+        let modifier = Self::get_modifier(&mut input);
         let motion = Motion::from(
             &input
                 .chars()
@@ -65,10 +55,37 @@ impl Move {
         )?;
 
         Ok(Self {
-            jumping,
+            modifier,
             motion,
             button,
         })
+    }
+
+    fn get_modifier(input: &mut String) -> Option<Modifier> {
+        if input.contains('.') {
+            let prefix = input.chars().take_while(|c| *c != '.').collect::<String>();
+            for _ in 0..prefix.len() {
+                (*input).remove(0);
+            }
+            (*input).remove(0);
+            Some(Modifier::from(prefix).unwrap())
+        } else if input.starts_with('j') {
+            (*input).remove(0);
+            Some(Modifier::Jumping)
+        } else if input.starts_with("jc") {
+            (*input).remove(0);
+            (*input).remove(0);
+            Some(Modifier::JumpCancel)
+        } else if input.starts_with('c') {
+            (*input).remove(0);
+            Some(Modifier::Close)
+        } else if input.starts_with("tk") {
+            (*input).remove(0);
+            (*input).remove(0);
+            Some(Modifier::TigerKnee)
+        } else {
+            None
+        }
     }
 }
 
@@ -77,7 +94,10 @@ impl fmt::Display for Move {
         write!(
             f,
             "{}{}{}",
-            if self.jumping { "j." } else { "" },
+            self.modifier
+                .as_ref()
+                .map(|m| m.to_string())
+                .unwrap_or_else(|| "".to_string()),
             self.motion.0,
             self.button.0
         )
@@ -173,16 +193,13 @@ impl Modifier {
         S: ToString,
     {
         let m = m.to_string();
-        if !m.contains('.') {
-            return Err(CreationError::InvalidModifier);
-        }
 
         match m.as_str() {
-            "j." => Ok(Self::Jumping),
-            "jc." => Ok(Self::JumpCancel),
-            "c." => Ok(Self::Close),
-            "tk." => Ok(Self::TigerKnee),
-            o => Ok(Self::Other(o.to_string())),
+            "j." | "j" => Ok(Self::Jumping),
+            "jc." | "jc" => Ok(Self::JumpCancel),
+            "c." | "c" => Ok(Self::Close),
+            "tk." | "tk" => Ok(Self::TigerKnee),
+            _ => Err(CreationError::InvalidModifier),
         }
     }
 }
@@ -190,13 +207,12 @@ impl Modifier {
 impl fmt::Display for Modifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let prefix = match self {
-            Modifier::Jumping => "j",
-            Modifier::JumpCancel => "jc",
-            Modifier::Close => "c",
-            Modifier::TigerKnee => "tk",
-            Modifier::Other(o) => o,
+            Modifier::Jumping => "j.",
+            Modifier::JumpCancel => "jc.",
+            Modifier::Close => "c.",
+            Modifier::TigerKnee => "tk.",
         };
-        write!(f, "{}.", prefix)
+        write!(f, "{}", prefix)
     }
 }
 
@@ -214,13 +230,13 @@ mod tests {
 
     #[test]
     fn j236h() {
-        let attack = "j236H";
+        let attack = "j.236H";
         let created = Move::from(attack).unwrap();
 
         assert_eq!(
             created,
             Move {
-                jumping: true,
+                modifier: Some(Modifier::Jumping),
                 motion: Motion("236".to_string()),
                 button: Button("H".to_string())
             }
@@ -235,7 +251,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                jumping: false,
+                modifier: None,
                 motion: Motion("623".to_string()),
                 button: Button("Hp".to_string())
             }
@@ -250,7 +266,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                jumping: true,
+                modifier: Some(Modifier::Jumping),
                 motion: Motion("5".to_string()),
                 button: Button("L".to_string())
             }
@@ -265,7 +281,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                jumping: false,
+                modifier: None,
                 motion: Motion("[4]6".to_string()),
                 button: Button("A".to_string())
             }
