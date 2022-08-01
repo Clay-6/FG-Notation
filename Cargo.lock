@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "fgc-translate"
+name = "fg-notation"
 version = "0.1.0"
