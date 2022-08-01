@@ -105,6 +105,11 @@ impl Motion {
         S: ToString,
     {
         let m = m.to_string();
+
+        if m.is_empty() {
+            return Ok(Self("5".to_string()));
+        }
+
         if !m.chars().all(|c| c.is_numeric()) {
             Err("Motion inputs can only contain numeric characters")
         } else {
@@ -162,6 +167,21 @@ mod tests {
     }
 
     #[test]
+    fn jl() {
+        let attack = "jL";
+        let created = Move::new(attack).unwrap();
+
+        assert_eq!(
+            created,
+            Move {
+                jumping: true,
+                motion: Motion("5".to_string()),
+                button: Button("L".to_string())
+            }
+        )
+    }
+
+    #[test]
     fn move_tostring() {
         let m = Move::new("214L").unwrap();
         assert_eq!(m.to_string(), "214L".to_string());
@@ -197,5 +217,12 @@ mod tests {
         let invalid = "balls22";
 
         Motion::from(invalid).unwrap();
+    }
+
+    #[test]
+    fn no_motion() {
+        let m = Motion::from("").unwrap();
+
+        println!("{m}")
     }
 }
