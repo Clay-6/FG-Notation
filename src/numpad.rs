@@ -1,6 +1,8 @@
 use core::fmt;
 use std::str::FromStr;
 
+use thiserror::Error;
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Move {
     jumping: bool,
@@ -14,8 +16,16 @@ pub struct Motion(String);
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Button(String);
 
+#[derive(Debug, Error)]
+pub enum CreationError {
+    #[error("Invalid motion input. Motions can only consist of ASCII digits")]
+    InvalidMotion,
+    #[error("Invalid button. Buttons can only consist of ASCII alphabetic characters")]
+    InvalidButton,
+}
+
 impl Move {
-    pub fn from<S>(input: S) -> Result<Self, &'static str>
+    pub fn from<S>(input: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
@@ -64,7 +74,7 @@ impl fmt::Display for Move {
 }
 
 impl FromStr for Move {
-    type Err = &'static str;
+    type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::from(s)
@@ -72,13 +82,13 @@ impl FromStr for Move {
 }
 
 impl Button {
-    pub fn from<S>(b: S) -> Result<Self, &'static str>
+    pub fn from<S>(b: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
         let b = b.to_string();
-        if !b.chars().all(|c| c.is_alphabetic()) {
-            Err("Button inputs can only contain alphabetic characters")
+        if !b.chars().all(|c| c.is_ascii_alphabetic()) {
+            Err(CreationError::InvalidButton)
         } else {
             Ok(Self(b))
         }
@@ -86,7 +96,7 @@ impl Button {
 }
 
 impl FromStr for Button {
-    type Err = &'static str;
+    type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::from(s)
@@ -100,7 +110,7 @@ impl fmt::Display for Button {
 }
 
 impl Motion {
-    pub fn from<S>(m: S) -> Result<Self, &'static str>
+    pub fn from<S>(m: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
@@ -110,8 +120,8 @@ impl Motion {
             return Ok(Self("5".to_string()));
         }
 
-        if !m.chars().all(|c| c.is_numeric()) {
-            Err("Motion inputs can only contain numeric characters")
+        if !m.chars().all(|c| c.is_ascii_digit()) {
+            Err(CreationError::InvalidMotion)
         } else {
             Ok(Self(m))
         }
@@ -119,7 +129,7 @@ impl Motion {
 }
 
 impl FromStr for Motion {
-    type Err = &'static str;
+    type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::from(s)
