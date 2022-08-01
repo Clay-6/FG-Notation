@@ -1,9 +1,18 @@
+use core::fmt;
+use std::str::FromStr;
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Move {
     jumping: bool,
     motion: Motion,
     button: Button,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Motion(String);
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Button(String);
 
 impl Move {
     pub fn new<S>(input: S) -> Result<Self, &'static str>
@@ -41,28 +50,80 @@ impl Move {
         })
     }
 }
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Motion(String);
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Button(String);
+impl fmt::Display for Move {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}{}{}",
+            if self.jumping { "j" } else { "" },
+            self.motion.0,
+            self.button.0
+        )
+    }
+}
+
+impl FromStr for Move {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::new(s)
+    }
+}
 
 impl Button {
-    pub fn from(b: &str) -> Result<Self, &'static str> {
+    pub fn from<S>(b: S) -> Result<Self, &'static str>
+    where
+        S: ToString,
+    {
+        let b = b.to_string();
         if !b.chars().all(|c| c.is_alphabetic()) {
             Err("Button inputs can only contain alphabetic characters")
         } else {
-            Ok(Self(b.to_string()))
+            Ok(Self(b))
         }
     }
 }
+
+impl FromStr for Button {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from(s)
+    }
+}
+
+impl fmt::Display for Button {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl Motion {
-    pub fn from(m: &str) -> Result<Self, &'static str> {
+    pub fn from<S>(m: S) -> Result<Self, &'static str>
+    where
+        S: ToString,
+    {
+        let m = m.to_string();
         if !m.chars().all(|c| c.is_numeric()) {
             Err("Motion inputs can only contain numeric characters")
         } else {
-            Ok(Self(m.to_string()))
+            Ok(Self(m))
         }
+    }
+}
+
+impl FromStr for Motion {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from(s)
+    }
+}
+
+impl fmt::Display for Motion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -98,6 +159,12 @@ mod tests {
                 button: Button("Hp".to_string())
             }
         )
+    }
+
+    #[test]
+    fn move_tostring() {
+        let m = Move::new("214L").unwrap();
+        assert_eq!(m.to_string(), "214L".to_string());
     }
 
     #[test]
