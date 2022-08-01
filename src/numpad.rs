@@ -29,7 +29,7 @@ impl Move {
     where
         S: ToString,
     {
-        let mut input = input.to_string();
+        let mut input = input.to_string().trim().to_string();
         let jumping = if input.starts_with('j') {
             input.remove(0); // Remove 'j'
             true
@@ -43,13 +43,13 @@ impl Move {
         let motion = Motion::from(
             &input
                 .chars()
-                .take_while(|c| c.is_numeric())
+                .take_while(|c| !c.is_ascii_alphabetic())
                 .collect::<String>(),
         )?;
         let button = Button::from(
             &input
                 .chars()
-                .skip_while(|c| c.is_numeric())
+                .skip_while(|c| !c.is_ascii_alphabetic())
                 .collect::<String>(),
         )?;
 
@@ -66,7 +66,7 @@ impl fmt::Display for Move {
         write!(
             f,
             "{}{}{}",
-            if self.jumping { "j" } else { "" },
+            if self.jumping { "j." } else { "" },
             self.motion.0,
             self.button.0
         )
@@ -110,6 +110,8 @@ impl fmt::Display for Button {
 }
 
 impl Motion {
+    #![allow(clippy::len_without_is_empty)] // Not possible for `Motion` to be empty
+
     pub fn from<S>(m: S) -> Result<Self, CreationError>
     where
         S: ToString,
@@ -120,11 +122,23 @@ impl Motion {
             return Ok(Self("5".to_string()));
         }
 
-        if !m.chars().all(|c| c.is_ascii_digit()) {
+        if !m
+            .chars()
+            .all(|c| c.is_ascii_digit() || (c == '[' || c == ']'))
+        {
             Err(CreationError::InvalidMotion)
         } else {
             Ok(Self(m))
         }
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    #[must_use]
+    pub fn is_neutral(&self) -> bool {
+        self.0 == "5"
     }
 }
 
@@ -187,6 +201,21 @@ mod tests {
                 jumping: true,
                 motion: Motion("5".to_string()),
                 button: Button("L".to_string())
+            }
+        )
+    }
+
+    #[test]
+    fn charge_move() {
+        let attack = "[4]6A";
+        let created = Move::from(attack).unwrap();
+
+        assert_eq!(
+            created,
+            Move {
+                jumping: false,
+                motion: Motion("[4]6".to_string()),
+                button: Button("A".to_string())
             }
         )
     }
