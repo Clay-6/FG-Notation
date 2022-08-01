@@ -15,7 +15,7 @@ pub struct Motion(String);
 pub struct Button(String);
 
 impl Move {
-    pub fn new<S>(input: S) -> Result<Self, &'static str>
+    pub fn from<S>(input: S) -> Result<Self, &'static str>
     where
         S: ToString,
     {
@@ -67,7 +67,7 @@ impl FromStr for Move {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::new(s)
+        Self::from(s)
     }
 }
 
@@ -139,7 +139,7 @@ mod tests {
     #[test]
     fn j236h() {
         let attack = "j236H";
-        let created = Move::new(attack).unwrap();
+        let created = Move::from(attack).unwrap();
 
         assert_eq!(
             created,
@@ -154,7 +154,7 @@ mod tests {
     #[test]
     fn heavy_dp() {
         let attack = "623Hp";
-        let created = Move::new(attack).unwrap();
+        let created = Move::from(attack).unwrap();
 
         assert_eq!(
             created,
@@ -169,7 +169,7 @@ mod tests {
     #[test]
     fn jl() {
         let attack = "jL";
-        let created = Move::new(attack).unwrap();
+        let created = Move::from(attack).unwrap();
 
         assert_eq!(
             created,
@@ -183,7 +183,7 @@ mod tests {
 
     #[test]
     fn move_tostring() {
-        let m = Move::new("214L").unwrap();
+        let m = Move::from("214L").unwrap();
         assert_eq!(m.to_string(), "214L".to_string());
     }
 
