@@ -16,12 +16,23 @@ pub struct Motion(String);
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Button(String);
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Modifier {
+    Jumping,
+    JumpCancel,
+    Close,
+    TigerKnee,
+    Other(String),
+}
+
 #[derive(Debug, Error)]
 pub enum CreationError {
     #[error("Invalid motion input. Motions can only consist of ASCII digits")]
     InvalidMotion,
     #[error("Invalid button. Buttons can only consist of ASCII alphabetic characters")]
     InvalidButton,
+    #[error("Invalid modifier. Modifiers must contain a '.'")]
+    InvalidModifier,
 }
 
 impl Move {
@@ -153,6 +164,47 @@ impl FromStr for Motion {
 impl fmt::Display for Motion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl Modifier {
+    pub fn from<S>(m: S) -> Result<Self, CreationError>
+    where
+        S: ToString,
+    {
+        let m = m.to_string();
+        if !m.contains('.') {
+            return Err(CreationError::InvalidModifier);
+        }
+
+        match m.as_str() {
+            "j." => Ok(Self::Jumping),
+            "jc." => Ok(Self::JumpCancel),
+            "c." => Ok(Self::Close),
+            "tk." => Ok(Self::TigerKnee),
+            o => Ok(Self::Other(o.to_string())),
+        }
+    }
+}
+
+impl fmt::Display for Modifier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let prefix = match self {
+            Modifier::Jumping => "j",
+            Modifier::JumpCancel => "jc",
+            Modifier::Close => "c",
+            Modifier::TigerKnee => "tk",
+            Modifier::Other(o) => o,
+        };
+        write!(f, "{}.", prefix)
+    }
+}
+
+impl FromStr for Modifier {
+    type Err = CreationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Modifier::from(s)
     }
 }
 
