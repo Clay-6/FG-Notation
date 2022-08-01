@@ -289,6 +289,21 @@ mod tests {
     }
 
     #[test]
+    fn cs() {
+        let attack = "c.S";
+        let created = Move::from(attack).unwrap();
+
+        assert_eq!(
+            created,
+            Move {
+                modifier: Some(Modifier::Close),
+                motion: Motion("5".to_string()),
+                button: Button("S".to_string())
+            }
+        )
+    }
+
+    #[test]
     fn move_tostring() {
         let m = Move::from("214L").unwrap();
         assert_eq!(m.to_string(), "214L".to_string());
