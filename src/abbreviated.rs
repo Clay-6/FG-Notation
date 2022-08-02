@@ -36,6 +36,7 @@ pub enum Modifier {
     Standing,
     Crouching,
     Jump,
+    SuperJump,
     JumpCancel,
     TigerKnee,
 }
@@ -51,6 +52,50 @@ impl Button {
         } else {
             Ok(Self(b))
         }
+    }
+}
+
+impl Modifier {
+    pub fn from<S>(m: S) -> Result<Self, CreationError>
+    where
+        S: ToString,
+    {
+        let m = m.to_string();
+        match m.as_str() {
+            "j." | "j" => Ok(Self::Jump),
+            "sj." | "sj" => Ok(Self::SuperJump),
+            "jc." | "jc" => Ok(Self::JumpCancel),
+            "cl." | "cl" => Ok(Self::Close),
+            "f." | "f" => Ok(Self::Far),
+            "tk." | "tk" => Ok(Self::TigerKnee),
+            "cr." | "cr" => Ok(Self::Crouching),
+            "st." | "st" => Ok(Self::Standing),
+            _ => Err(CreationError::InvalidModifier),
+        }
+    }
+}
+
+impl FromStr for Modifier {
+    type Err = CreationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from(s)
+    }
+}
+
+impl fmt::Display for Modifier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let prefix = match self {
+            Modifier::Close => "cl.",
+            Modifier::Far => "f.",
+            Modifier::Standing => "st.",
+            Modifier::Crouching => "cr.",
+            Modifier::Jump => "j.",
+            Modifier::SuperJump => "sj.",
+            Modifier::JumpCancel => "jc.",
+            Modifier::TigerKnee => "tk.",
+        };
+        write!(f, "{}", prefix)
     }
 }
 
