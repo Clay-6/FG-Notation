@@ -57,31 +57,10 @@ impl Move {
         if input.contains('.') {
             let prefix = input.chars().take_while(|c| *c != '.').collect::<String>();
             for _ in 0..prefix.len() {
-                (*input).remove(0);
+                (*input).remove(0); // Remove characters
             }
-            (*input).remove(0);
+            (*input).remove(0); // Remove '.'
             Some(Modifier::from(prefix).unwrap())
-        } else if input.starts_with('j') {
-            (*input).remove(0);
-            Some(Modifier::Jump)
-        } else if input.starts_with("sj") {
-            (*input).remove(0);
-            (*input).remove(0);
-            Some(Modifier::SuperJump)
-        } else if input.starts_with("jc") {
-            (*input).remove(0);
-            (*input).remove(0);
-            Some(Modifier::JumpCancel)
-        } else if input.starts_with('c') {
-            (*input).remove(0);
-            Some(Modifier::Close)
-        } else if input.starts_with("f") {
-            (*input).remove(0);
-            Some(Modifier::Far)
-        } else if input.starts_with("tk") {
-            (*input).remove(0);
-            (*input).remove(0);
-            Some(Modifier::TigerKnee)
         } else {
             None
         }
@@ -263,7 +242,7 @@ mod tests {
 
     #[test]
     fn jl() {
-        let attack = "jL";
+        let attack = "j.L";
         let created = Move::from(attack).unwrap();
 
         assert_eq!(
