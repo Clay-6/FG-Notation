@@ -12,10 +12,11 @@ pub struct Move {
 pub struct Button(String);
 
 pub enum Motion {
+    N,
     U,
     D,
-    F,
     B,
+    F,
     DB,
     DF,
     UB,
@@ -71,6 +72,65 @@ impl Modifier {
             "cr." | "cr" => Ok(Self::Crouching),
             "st." | "st" => Ok(Self::Standing),
             _ => Err(CreationError::InvalidModifier),
+        }
+    }
+}
+
+impl Motion {
+    pub fn from<S>(m: S) -> Result<Self, CreationError>
+    where
+        S: ToString,
+    {
+        let m = m.to_string();
+        match m.to_lowercase().as_str() {
+            "n" => Ok(Self::N),
+            "u" => Ok(Self::U),
+            "d" => Ok(Self::D),
+            "b" => Ok(Self::B),
+            "f" => Ok(Self::F),
+            "ub" | "u/b" => Ok(Self::UB),
+            "uf" | "u/f" => Ok(Self::UF),
+            "db" | "d/b" => Ok(Self::DB),
+            "df" | "d/f" => Ok(Self::DF),
+            "qcf" => Ok(Self::QCF),
+            "qcb" => Ok(Self::QCB),
+            "hcf" => Ok(Self::HCF),
+            "hcb" => Ok(Self::HCB),
+            "360" => Ok(Self::FullCircle),
+            "720" => Ok(Self::Double360),
+            _ => Err(CreationError::InvalidMotion),
+        }
+    }
+}
+
+impl FromStr for Motion {
+    type Err = CreationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from(s)
+    }
+}
+
+impl fmt::Display for Motion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Motion::N => write!(f, "N"),
+            Motion::U => write!(f, "U"),
+            Motion::D => write!(f, "D"),
+            Motion::B => write!(f, "B"),
+            Motion::F => write!(f, "F"),
+            Motion::DB => write!(f, "DB"),
+            Motion::DF => write!(f, "DF"),
+            Motion::UB => write!(f, "UB"),
+            Motion::UF => write!(f, "UF"),
+            Motion::QCF => write!(f, "QCF"),
+            Motion::QCB => write!(f, "QCB"),
+            Motion::HCF => write!(f, "HCF"),
+            Motion::HCB => write!(f, "HCB"),
+            Motion::DP => write!(f, "DP"),
+            Motion::RDP => write!(f, "RDP"),
+            Motion::FullCircle => write!(f, "360"),
+            Motion::Double360 => write!(f, "720"),
         }
     }
 }
