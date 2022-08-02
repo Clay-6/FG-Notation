@@ -22,6 +22,7 @@ pub enum Modifier {
     SuperJump,
     JumpCancel,
     Close,
+    Far,
     TigerKnee,
 }
 
@@ -74,6 +75,9 @@ impl Move {
         } else if input.starts_with('c') {
             (*input).remove(0);
             Some(Modifier::Close)
+        } else if input.starts_with("f") {
+            (*input).remove(0);
+            Some(Modifier::Far)
         } else if input.starts_with("tk") {
             (*input).remove(0);
             (*input).remove(0);
@@ -194,6 +198,7 @@ impl Modifier {
             "sj." | "sj" => Ok(Self::SuperJump),
             "jc." | "jc" => Ok(Self::JumpCancel),
             "c." | "c" => Ok(Self::Close),
+            "f." | "f" => Ok(Self::Far),
             "tk." | "tk" => Ok(Self::TigerKnee),
             _ => Err(CreationError::InvalidModifier),
         }
@@ -207,6 +212,7 @@ impl fmt::Display for Modifier {
             Modifier::SuperJump => "sj.",
             Modifier::JumpCancel => "jc.",
             Modifier::Close => "c.",
+            Modifier::Far => "f.",
             Modifier::TigerKnee => "tk.",
         };
         write!(f, "{}", prefix)
