@@ -18,7 +18,8 @@ pub struct Button(String);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Modifier {
-    Jumping,
+    Jump,
+    SuperJump,
     JumpCancel,
     Close,
     TigerKnee,
@@ -71,7 +72,11 @@ impl Move {
             Some(Modifier::from(prefix).unwrap())
         } else if input.starts_with('j') {
             (*input).remove(0);
-            Some(Modifier::Jumping)
+            Some(Modifier::Jump)
+        } else if input.starts_with("sj") {
+            (*input).remove(0);
+            (*input).remove(0);
+            Some(Modifier::SuperJump)
         } else if input.starts_with("jc") {
             (*input).remove(0);
             (*input).remove(0);
@@ -195,7 +200,8 @@ impl Modifier {
         let m = m.to_string();
 
         match m.as_str() {
-            "j." | "j" => Ok(Self::Jumping),
+            "j." | "j" => Ok(Self::Jump),
+            "sj." | "sj" => Ok(Self::SuperJump),
             "jc." | "jc" => Ok(Self::JumpCancel),
             "c." | "c" => Ok(Self::Close),
             "tk." | "tk" => Ok(Self::TigerKnee),
@@ -207,7 +213,8 @@ impl Modifier {
 impl fmt::Display for Modifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let prefix = match self {
-            Modifier::Jumping => "j.",
+            Modifier::Jump => "j.",
+            Modifier::SuperJump => "sj.",
             Modifier::JumpCancel => "jc.",
             Modifier::Close => "c.",
             Modifier::TigerKnee => "tk.",
@@ -236,7 +243,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                modifier: Some(Modifier::Jumping),
+                modifier: Some(Modifier::Jump),
                 motion: Motion("236".to_string()),
                 button: Button("H".to_string())
             }
@@ -266,7 +273,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                modifier: Some(Modifier::Jumping),
+                modifier: Some(Modifier::Jump),
                 motion: Motion("5".to_string()),
                 button: Button("L".to_string())
             }
@@ -298,6 +305,21 @@ mod tests {
             Move {
                 modifier: Some(Modifier::Close),
                 motion: Motion("5".to_string()),
+                button: Button("S".to_string())
+            }
+        )
+    }
+
+    #[test]
+    fn superjump() {
+        let attack = "sj.236S";
+        let created = Move::from(attack).unwrap();
+
+        assert_eq!(
+            created,
+            Move {
+                modifier: Some(Modifier::SuperJump),
+                motion: Motion("236".to_string()),
                 button: Button("S".to_string())
             }
         )
