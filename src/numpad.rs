@@ -1,7 +1,7 @@
 use core::fmt;
 use std::str::FromStr;
 
-use thiserror::Error;
+use crate::CreationError;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Move {
@@ -23,16 +23,6 @@ pub enum Modifier {
     JumpCancel,
     Close,
     TigerKnee,
-}
-
-#[derive(Debug, Error)]
-pub enum CreationError {
-    #[error("Invalid motion input. Motions can only consist of ASCII digits")]
-    InvalidMotion,
-    #[error("Invalid button. Buttons can only consist of ASCII alphabetic characters")]
-    InvalidButton,
-    #[error("Invalid modifier. Valid modifiers are 'j', 'jc', 'c', & 'tk'")]
-    InvalidModifier,
 }
 
 impl Move {
