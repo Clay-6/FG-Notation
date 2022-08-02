@@ -3,20 +3,20 @@ use std::str::FromStr;
 
 use crate::CreationError;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Move {
     modifier: Option<Modifier>,
     motion: Motion,
     button: Button,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Motion(String);
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Button(String);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Modifier {
     Jump,
     SuperJump,
@@ -32,7 +32,7 @@ impl Move {
         S: ToString,
     {
         let mut input = input.to_string().trim().to_string();
-        let modifier = Self::get_modifier(&mut input);
+        let modifier = Self::get_modifier(&mut input)?;
         let motion = Motion::from(
             &input
                 .chars()
@@ -53,16 +53,16 @@ impl Move {
         })
     }
 
-    fn get_modifier(input: &mut String) -> Option<Modifier> {
+    fn get_modifier(input: &mut String) -> Result<Option<Modifier>, CreationError> {
         if input.contains('.') {
             let prefix = input.chars().take_while(|c| *c != '.').collect::<String>();
             for _ in 0..prefix.len() {
                 (*input).remove(0); // Remove characters
             }
             (*input).remove(0); // Remove '.'
-            Some(Modifier::from(prefix).unwrap())
+            Ok(Some(Modifier::from(prefix)?))
         } else {
-            None
+            Ok(None)
         }
     }
 }

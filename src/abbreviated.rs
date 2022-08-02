@@ -3,14 +3,17 @@ use std::str::FromStr;
 
 use crate::CreationError;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Move {
     button: Button,
     motion: Motion,
-    modifier: Modifier,
+    modifier: Option<Modifier>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Button(String);
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Motion {
     N,
     U,
@@ -31,6 +34,7 @@ pub enum Motion {
     Double360,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Modifier {
     Close,
     Far,
@@ -40,6 +44,42 @@ pub enum Modifier {
     SuperJump,
     JumpCancel,
     TigerKnee,
+}
+
+impl Move {
+    pub fn from<S>(input: S) -> Result<Self, CreationError>
+    where
+        S: ToString,
+    {
+        let mut input = input.to_string().trim().to_string();
+        let modifier = Self::get_modifier(&mut input)?;
+        let input = input.split_whitespace().collect::<Vec<&str>>();
+        let motion = if input.len() > 1 {
+            Motion::from(input[0])?
+        } else {
+            Motion::N
+        };
+        let button = Button::from(input.last().unwrap())?;
+
+        Ok(Self {
+            button,
+            motion,
+            modifier,
+        })
+    }
+
+    fn get_modifier(input: &mut String) -> Result<Option<Modifier>, CreationError> {
+        if input.contains('.') {
+            let prefix = input.chars().take_while(|c| *c != '.').collect::<String>();
+            for _ in 0..prefix.len() {
+                (*input).remove(0);
+            }
+            (*input).remove(0);
+            Ok(Some(Modifier::from(prefix)?))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 impl Button {
@@ -170,5 +210,55 @@ impl FromStr for Button {
 impl fmt::Display for Button {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn qcf_hp() {
+        let attack = "qcf HP";
+        let created = Move::from(attack).unwrap();
+
+        assert_eq!(
+            created,
+            Move {
+                button: Button("HP".to_string()),
+                motion: Motion::QCF,
+                modifier: None
+            }
+        )
+    }
+
+    #[test]
+    fn cr_mk() {
+        let attack = "cr.mk";
+        let created = Move::from(attack).unwrap();
+
+        assert_eq!(
+            created,
+            Move {
+                button: Button("mk".to_string()),
+                motion: Motion::N,
+                modifier: Some(Modifier::Crouching)
+            },
+        )
+    }
+
+    #[test]
+    fn tk_qcf_hk() {
+        let attack = "tk.qcf HK";
+        let created = Move::from(attack).unwrap();
+
+        assert_eq!(
+            created,
+            Move {
+                button: Button("HK".to_string()),
+                motion: Motion::QCF,
+                modifier: Some(Modifier::TigerKnee)
+            }
+        )
     }
 }
