@@ -68,17 +68,22 @@ impl Move {
     }
 }
 
-impl fmt::Display for Move {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}{}", self.modifier, self.motion.0, self.button.0)
-    }
-}
+impl Modifier {
+    pub fn new<S>(m: S) -> Result<Self, CreationError>
+    where
+        S: ToString,
+    {
+        let m = m.to_string();
 
-impl FromStr for Move {
-    type Err = CreationError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::new(s)
+        match m.as_str() {
+            "j." | "j" => Ok(Self::Jump),
+            "sj." | "sj" => Ok(Self::SuperJump),
+            "jc." | "jc" => Ok(Self::JumpCancel),
+            "c." | "c" => Ok(Self::Close),
+            "f." | "f" => Ok(Self::Far),
+            "tk." | "tk" => Ok(Self::TigerKnee),
+            _ => Err(CreationError::InvalidModifier),
+        }
     }
 }
 
@@ -93,26 +98,6 @@ impl Button {
         } else {
             Ok(Self(b))
         }
-    }
-}
-
-impl From<abbreviated::Button> for Button {
-    fn from(b: abbreviated::Button) -> Self {
-        Button(b.to_string())
-    }
-}
-
-impl FromStr for Button {
-    type Err = CreationError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::new(s)
-    }
-}
-
-impl fmt::Display for Button {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
     }
 }
 
@@ -146,6 +131,40 @@ impl Motion {
     #[must_use]
     pub fn is_neutral(&self) -> bool {
         self.0 == "5"
+    }
+}
+
+impl fmt::Display for Move {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}{}", self.modifier, self.motion.0, self.button.0)
+    }
+}
+
+impl FromStr for Move {
+    type Err = CreationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::new(s)
+    }
+}
+
+impl From<abbreviated::Button> for Button {
+    fn from(b: abbreviated::Button) -> Self {
+        Button(b.to_string())
+    }
+}
+
+impl FromStr for Button {
+    type Err = CreationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::new(s)
+    }
+}
+
+impl fmt::Display for Button {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -185,25 +204,6 @@ impl FromStr for Motion {
 impl fmt::Display for Motion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
-    }
-}
-
-impl Modifier {
-    pub fn new<S>(m: S) -> Result<Self, CreationError>
-    where
-        S: ToString,
-    {
-        let m = m.to_string();
-
-        match m.as_str() {
-            "j." | "j" => Ok(Self::Jump),
-            "sj." | "sj" => Ok(Self::SuperJump),
-            "jc." | "jc" => Ok(Self::JumpCancel),
-            "c." | "c" => Ok(Self::Close),
-            "f." | "f" => Ok(Self::Far),
-            "tk." | "tk" => Ok(Self::TigerKnee),
-            _ => Err(CreationError::InvalidModifier),
-        }
     }
 }
 
