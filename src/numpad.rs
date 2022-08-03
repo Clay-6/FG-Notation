@@ -54,6 +54,18 @@ impl Move {
         })
     }
 
+    pub fn button(&self) -> Button {
+        self.button.clone()
+    }
+
+    pub fn motion(&self) -> Motion {
+        self.motion.clone()
+    }
+
+    pub fn modifier(&self) -> Modifier {
+        self.modifier
+    }
+
     fn get_modifier(input: &mut String) -> Result<Modifier, CreationError> {
         if input.contains('.') {
             let prefix = input.chars().take_while(|c| *c != '.').collect::<String>();
@@ -131,6 +143,27 @@ impl Motion {
     #[must_use]
     pub fn is_neutral(&self) -> bool {
         self.0 == "5"
+    }
+}
+
+impl From<abbreviated::Move> for Move {
+    fn from(m: abbreviated::Move) -> Self {
+        let button = Button::from(m.button());
+        let a_mod = m.modifier();
+        let motion = if a_mod == abbreviated::Modifier::Standing {
+            Motion::new("5").unwrap()
+        } else if a_mod == abbreviated::Modifier::Crouching {
+            Motion::new("2").unwrap()
+        } else {
+            Motion::from(m.motion())
+        };
+        let modifier = Modifier::from(a_mod);
+
+        Self {
+            button,
+            motion,
+            modifier,
+        }
     }
 }
 

@@ -82,6 +82,18 @@ impl Move {
             Ok(Modifier::None)
         }
     }
+
+    pub fn button(&self) -> Button {
+        self.button.clone()
+    }
+
+    pub fn motion(&self) -> Motion {
+        self.motion.clone()
+    }
+
+    pub fn modifier(&self) -> Modifier {
+        self.modifier
+    }
 }
 
 impl Button {
@@ -142,6 +154,40 @@ impl Motion {
             "720" => Self::Double360,
             other => Self::Other(other.to_string()),
         }
+    }
+}
+
+impl From<numpad::Move> for Move {
+    fn from(m: numpad::Move) -> Self {
+        let button = Button::from(m.button());
+        let m_motion = m.motion();
+        let (motion, modifier) = if m_motion == numpad::Motion::new("2").unwrap() {
+            (Motion::N, Modifier::Crouching)
+        } else if m_motion == numpad::Motion::new("5").unwrap() {
+            (Motion::N, Modifier::Standing)
+        } else {
+            (Motion::from(m_motion), Modifier::from(m.modifier()))
+        };
+
+        Self {
+            button,
+            motion,
+            modifier,
+        }
+    }
+}
+
+impl FromStr for Move {
+    type Err = CreationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::new(s)
+    }
+}
+
+impl fmt::Display for Move {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{} {}", self.modifier, self.motion, self.button)
     }
 }
 
