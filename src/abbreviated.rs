@@ -48,7 +48,7 @@ pub enum Modifier {
 }
 
 impl Move {
-    pub fn from<S>(input: S) -> Result<Self, CreationError>
+    pub fn new<S>(input: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
@@ -56,11 +56,11 @@ impl Move {
         let modifier = Self::get_modifier(&mut input)?;
         let input = input.split_whitespace().collect::<Vec<&str>>();
         let motion = if input.len() > 1 {
-            Motion::from(input[0])
+            Motion::new(input[0])
         } else {
             Motion::N
         };
-        let button = Button::from(input.last().unwrap())?;
+        let button = Button::new(input.last().unwrap())?;
 
         Ok(Self {
             button,
@@ -76,7 +76,7 @@ impl Move {
                 (*input).remove(0);
             }
             (*input).remove(0);
-            Ok(Some(Modifier::from(prefix)?))
+            Ok(Some(Modifier::new(prefix)?))
         } else {
             Ok(None)
         }
@@ -84,7 +84,7 @@ impl Move {
 }
 
 impl Button {
-    pub fn from<S>(b: S) -> Result<Self, CreationError>
+    pub fn new<S>(b: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
@@ -98,7 +98,7 @@ impl Button {
 }
 
 impl Modifier {
-    pub fn from<S>(m: S) -> Result<Self, CreationError>
+    pub fn new<S>(m: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
@@ -118,7 +118,7 @@ impl Modifier {
 }
 
 impl Motion {
-    pub fn from<S>(m: S) -> Self
+    pub fn new<S>(m: S) -> Self
     where
         S: ToString,
     {
@@ -171,7 +171,7 @@ impl FromStr for Motion {
     type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self::from(s))
+        Ok(Self::new(s))
     }
 }
 
@@ -204,7 +204,7 @@ impl FromStr for Modifier {
     type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from(s)
+        Self::new(s)
     }
 }
 
@@ -234,7 +234,7 @@ impl FromStr for Button {
     type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from(s)
+        Self::new(s)
     }
 }
 
@@ -251,7 +251,7 @@ mod tests {
     #[test]
     fn qcf_hp() {
         let attack = "qcf HP";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,
@@ -266,7 +266,7 @@ mod tests {
     #[test]
     fn cr_mk() {
         let attack = "cr.mk";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,
@@ -281,7 +281,7 @@ mod tests {
     #[test]
     fn tk_qcf_hk() {
         let attack = "tk.qcf HK";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,

@@ -27,19 +27,19 @@ pub enum Modifier {
 }
 
 impl Move {
-    pub fn from<S>(input: S) -> Result<Self, CreationError>
+    pub fn new<S>(input: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
         let mut input = input.to_string().trim().to_string();
         let modifier = Self::get_modifier(&mut input)?;
-        let motion = Motion::from(
+        let motion = Motion::new(
             &input
                 .chars()
                 .take_while(|c| !c.is_ascii_alphabetic())
                 .collect::<String>(),
         )?;
-        let button = Button::from(
+        let button = Button::new(
             &input
                 .chars()
                 .skip_while(|c| !c.is_ascii_alphabetic())
@@ -60,7 +60,7 @@ impl Move {
                 (*input).remove(0); // Remove characters
             }
             (*input).remove(0); // Remove '.'
-            Ok(Some(Modifier::from(prefix)?))
+            Ok(Some(Modifier::new(prefix)?))
         } else {
             Ok(None)
         }
@@ -86,12 +86,12 @@ impl FromStr for Move {
     type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from(s)
+        Self::new(s)
     }
 }
 
 impl Button {
-    pub fn from<S>(b: S) -> Result<Self, CreationError>
+    pub fn new<S>(b: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
@@ -114,7 +114,7 @@ impl FromStr for Button {
     type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from(s)
+        Self::new(s)
     }
 }
 
@@ -127,7 +127,7 @@ impl fmt::Display for Button {
 impl Motion {
     #![allow(clippy::len_without_is_empty)] // Not possible for `Motion` to be empty
 
-    pub fn from<S>(m: S) -> Result<Self, CreationError>
+    pub fn new<S>(m: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
@@ -177,7 +177,7 @@ impl From<abbreviated::Motion> for Motion {
             abbreviated::Motion::RDP => Self("421".to_string()),
             abbreviated::Motion::FullCircle => Self("41236987".to_string()),
             abbreviated::Motion::Double360 => Self("4123698741236987".to_string()),
-            abbreviated::Motion::Other(o) => Self::from(o).unwrap(),
+            abbreviated::Motion::Other(o) => Self::new(o).unwrap(),
         }
     }
 }
@@ -186,7 +186,7 @@ impl FromStr for Motion {
     type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from(s)
+        Self::new(s)
     }
 }
 
@@ -197,7 +197,7 @@ impl fmt::Display for Motion {
 }
 
 impl Modifier {
-    pub fn from<S>(m: S) -> Result<Self, CreationError>
+    pub fn new<S>(m: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
@@ -233,7 +233,7 @@ impl FromStr for Modifier {
     type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Modifier::from(s)
+        Modifier::new(s)
     }
 }
 
@@ -244,7 +244,7 @@ mod tests {
     #[test]
     fn j236h() {
         let attack = "j.236H";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,
@@ -259,7 +259,7 @@ mod tests {
     #[test]
     fn heavy_dp() {
         let attack = "623Hp";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,
@@ -274,7 +274,7 @@ mod tests {
     #[test]
     fn jl() {
         let attack = "j.L";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,
@@ -289,7 +289,7 @@ mod tests {
     #[test]
     fn charge_move() {
         let attack = "[4]6A";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,
@@ -304,7 +304,7 @@ mod tests {
     #[test]
     fn cs() {
         let attack = "c.S";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,
@@ -319,7 +319,7 @@ mod tests {
     #[test]
     fn superjump() {
         let attack = "sj.236S";
-        let created = Move::from(attack).unwrap();
+        let created = Move::new(attack).unwrap();
 
         assert_eq!(
             created,
@@ -333,14 +333,14 @@ mod tests {
 
     #[test]
     fn move_tostring() {
-        let m = Move::from("214L").unwrap();
+        let m = Move::new("214L").unwrap();
         assert_eq!(m.to_string(), "214L".to_string());
     }
 
     #[test]
     fn button_creation() {
         let button = "HS";
-        let created = Button::from(button).unwrap();
+        let created = Button::new(button).unwrap();
 
         assert_eq!(created, Button("HS".to_string()));
     }
@@ -350,13 +350,13 @@ mod tests {
     fn invalid_button_fails() {
         let invalid = "69lol";
 
-        Button::from(invalid).unwrap();
+        Button::new(invalid).unwrap();
     }
 
     #[test]
     fn motion_creation() {
         let motion = "236";
-        let created = Motion::from(motion).unwrap();
+        let created = Motion::new(motion).unwrap();
 
         assert_eq!(created, Motion("236".to_string()));
     }
@@ -366,12 +366,12 @@ mod tests {
     fn invalid_motion_fails() {
         let invalid = "balls22";
 
-        Motion::from(invalid).unwrap();
+        Motion::new(invalid).unwrap();
     }
 
     #[test]
     fn no_motion() {
-        let m = Motion::from("").unwrap();
+        let m = Motion::new("").unwrap();
 
         println!("{m}")
     }
