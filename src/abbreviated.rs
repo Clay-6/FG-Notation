@@ -1,7 +1,7 @@
 use core::fmt;
 use std::str::FromStr;
 
-use crate::CreationError;
+use crate::{numpad, CreationError};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Move {
@@ -13,7 +13,7 @@ pub struct Move {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Button(String);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Motion {
     N,
     U,
@@ -32,6 +32,7 @@ pub enum Motion {
     RDP,
     FullCircle,
     Double360,
+    Other(String),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -55,7 +56,7 @@ impl Move {
         let modifier = Self::get_modifier(&mut input)?;
         let input = input.split_whitespace().collect::<Vec<&str>>();
         let motion = if input.len() > 1 {
-            Motion::from(input[0])?
+            Motion::from(input[0])
         } else {
             Motion::N
         };
@@ -117,28 +118,51 @@ impl Modifier {
 }
 
 impl Motion {
-    pub fn from<S>(m: S) -> Result<Self, CreationError>
+    pub fn from<S>(m: S) -> Self
     where
         S: ToString,
     {
         let m = m.to_string();
         match m.to_lowercase().as_str() {
-            "n" => Ok(Self::N),
-            "u" => Ok(Self::U),
-            "d" => Ok(Self::D),
-            "b" => Ok(Self::B),
-            "f" => Ok(Self::F),
-            "ub" | "u/b" => Ok(Self::UB),
-            "uf" | "u/f" => Ok(Self::UF),
-            "db" | "d/b" => Ok(Self::DB),
-            "df" | "d/f" => Ok(Self::DF),
-            "qcf" => Ok(Self::QCF),
-            "qcb" => Ok(Self::QCB),
-            "hcf" => Ok(Self::HCF),
-            "hcb" => Ok(Self::HCB),
-            "360" => Ok(Self::FullCircle),
-            "720" => Ok(Self::Double360),
-            _ => Err(CreationError::InvalidMotion),
+            "n" => Self::N,
+            "u" => Self::U,
+            "d" => Self::D,
+            "b" => Self::B,
+            "f" => Self::F,
+            "ub" | "u/b" => Self::UB,
+            "uf" | "u/f" => Self::UF,
+            "db" | "d/b" => Self::DB,
+            "df" | "d/f" => Self::DF,
+            "qcf" => Self::QCF,
+            "qcb" => Self::QCB,
+            "hcf" => Self::HCF,
+            "hcb" => Self::HCB,
+            "360" => Self::FullCircle,
+            "720" => Self::Double360,
+            other => Self::Other(other.to_string()),
+        }
+    }
+}
+
+impl From<numpad::Motion> for Motion {
+    fn from(m: numpad::Motion) -> Self {
+        match m.to_string().as_str() {
+            "5" | "" => Self::N,
+            "8" => Self::U,
+            "2" => Self::D,
+            "4" => Self::B,
+            "6" => Self::F,
+            "7" => Self::UB,
+            "9" => Self::UF,
+            "1" => Self::DB,
+            "3" => Self::DF,
+            "236" => Self::QCF,
+            "214" => Self::QCB,
+            "41236" => Self::HCF,
+            "63214" => Self::HCB,
+            "41236987" => Self::FullCircle,
+            "4123698741236987" => Self::Double360,
+            other => Self::Other(other.to_string()),
         }
     }
 }
@@ -147,7 +171,7 @@ impl FromStr for Motion {
     type Err = CreationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from(s)
+        Ok(Self::from(s))
     }
 }
 
@@ -171,6 +195,7 @@ impl fmt::Display for Motion {
             Motion::RDP => write!(f, "RDP"),
             Motion::FullCircle => write!(f, "360"),
             Motion::Double360 => write!(f, "720"),
+            Motion::Other(o) => write!(f, "'{}'", o),
         }
     }
 }
@@ -196,6 +221,12 @@ impl fmt::Display for Modifier {
             Modifier::TigerKnee => "tk.",
         };
         write!(f, "{}", prefix)
+    }
+}
+
+impl From<numpad::Button> for Button {
+    fn from(b: numpad::Button) -> Self {
+        Self(b.to_string())
     }
 }
 

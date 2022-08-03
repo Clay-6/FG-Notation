@@ -1,7 +1,7 @@
 use core::fmt;
 use std::str::FromStr;
 
-use crate::CreationError;
+use crate::{abbreviated, CreationError};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Move {
@@ -104,6 +104,12 @@ impl Button {
     }
 }
 
+impl From<abbreviated::Button> for Button {
+    fn from(b: abbreviated::Button) -> Self {
+        Button(b.to_string())
+    }
+}
+
 impl FromStr for Button {
     type Err = CreationError;
 
@@ -148,6 +154,31 @@ impl Motion {
     #[must_use]
     pub fn is_neutral(&self) -> bool {
         self.0 == "5"
+    }
+}
+
+impl From<abbreviated::Motion> for Motion {
+    fn from(m: abbreviated::Motion) -> Self {
+        match m {
+            abbreviated::Motion::N => Self("5".to_string()),
+            abbreviated::Motion::U => Self("8".to_string()),
+            abbreviated::Motion::D => Self("2".to_string()),
+            abbreviated::Motion::B => Self("4".to_string()),
+            abbreviated::Motion::F => Self("6".to_string()),
+            abbreviated::Motion::DB => Self("1".to_string()),
+            abbreviated::Motion::DF => Self("3".to_string()),
+            abbreviated::Motion::UB => Self("7".to_string()),
+            abbreviated::Motion::UF => Self("9".to_string()),
+            abbreviated::Motion::QCF => Self("236".to_string()),
+            abbreviated::Motion::QCB => Self("214".to_string()),
+            abbreviated::Motion::HCF => Self("41236".to_string()),
+            abbreviated::Motion::HCB => Self("63214".to_string()),
+            abbreviated::Motion::DP => Self("623".to_string()),
+            abbreviated::Motion::RDP => Self("421".to_string()),
+            abbreviated::Motion::FullCircle => Self("41236987".to_string()),
+            abbreviated::Motion::Double360 => Self("4123698741236987".to_string()),
+            abbreviated::Motion::Other(o) => Self::from(o).unwrap(),
+        }
     }
 }
 
