@@ -207,6 +207,22 @@ impl fmt::Display for Motion {
     }
 }
 
+impl From<abbreviated::Modifier> for Modifier {
+    fn from(m: abbreviated::Modifier) -> Self {
+        match m {
+            abbreviated::Modifier::Close => Self::Close,
+            abbreviated::Modifier::Far => Self::Far,
+            abbreviated::Modifier::Standing => Self::None,
+            abbreviated::Modifier::Crouching => Self::None,
+            abbreviated::Modifier::Jump => Self::Jump,
+            abbreviated::Modifier::SuperJump => Self::SuperJump,
+            abbreviated::Modifier::JumpCancel => Self::JumpCancel,
+            abbreviated::Modifier::TigerKnee => Self::TigerKnee,
+            abbreviated::Modifier::None => Self::None,
+        }
+    }
+}
+
 impl fmt::Display for Modifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let prefix = match self {

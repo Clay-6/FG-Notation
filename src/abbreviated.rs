@@ -201,6 +201,20 @@ impl fmt::Display for Motion {
     }
 }
 
+impl From<numpad::Modifier> for Modifier {
+    fn from(m: numpad::Modifier) -> Self {
+        match m {
+            numpad::Modifier::Jump => Self::Jump,
+            numpad::Modifier::SuperJump => Self::SuperJump,
+            numpad::Modifier::JumpCancel => Self::JumpCancel,
+            numpad::Modifier::Close => Self::Close,
+            numpad::Modifier::Far => Self::Far,
+            numpad::Modifier::TigerKnee => Self::TigerKnee,
+            numpad::Modifier::None => Self::None,
+        }
+    }
+}
+
 impl FromStr for Modifier {
     type Err = CreationError;
 
