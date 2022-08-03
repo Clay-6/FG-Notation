@@ -5,7 +5,7 @@ use crate::{abbreviated, CreationError};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Move {
-    modifier: Option<Modifier>,
+    modifier: Modifier,
     motion: Motion,
     button: Button,
 }
@@ -24,6 +24,7 @@ pub enum Modifier {
     Close,
     Far,
     TigerKnee,
+    None,
 }
 
 impl Move {
@@ -53,32 +54,23 @@ impl Move {
         })
     }
 
-    fn get_modifier(input: &mut String) -> Result<Option<Modifier>, CreationError> {
+    fn get_modifier(input: &mut String) -> Result<Modifier, CreationError> {
         if input.contains('.') {
             let prefix = input.chars().take_while(|c| *c != '.').collect::<String>();
             for _ in 0..prefix.len() {
                 (*input).remove(0); // Remove characters
             }
             (*input).remove(0); // Remove '.'
-            Ok(Some(Modifier::new(prefix)?))
+            Ok(Modifier::new(prefix)?)
         } else {
-            Ok(None)
+            Ok(Modifier::None)
         }
     }
 }
 
 impl fmt::Display for Move {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}{}{}",
-            self.modifier
-                .as_ref()
-                .map(|m| m.to_string())
-                .unwrap_or_else(|| "".to_string()),
-            self.motion.0,
-            self.button.0
-        )
+        write!(f, "{}{}{}", self.modifier, self.motion.0, self.button.0)
     }
 }
 
@@ -224,6 +216,7 @@ impl fmt::Display for Modifier {
             Modifier::Close => "c.",
             Modifier::Far => "f.",
             Modifier::TigerKnee => "tk.",
+            Modifier::None => "",
         };
         write!(f, "{}", prefix)
     }
@@ -249,7 +242,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                modifier: Some(Modifier::Jump),
+                modifier: Modifier::Jump,
                 motion: Motion("236".to_string()),
                 button: Button("H".to_string())
             }
@@ -264,7 +257,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                modifier: None,
+                modifier: Modifier::None,
                 motion: Motion("623".to_string()),
                 button: Button("Hp".to_string())
             }
@@ -279,7 +272,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                modifier: Some(Modifier::Jump),
+                modifier: Modifier::Jump,
                 motion: Motion("5".to_string()),
                 button: Button("L".to_string())
             }
@@ -294,7 +287,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                modifier: None,
+                modifier: Modifier::None,
                 motion: Motion("[4]6".to_string()),
                 button: Button("A".to_string())
             }
@@ -309,7 +302,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                modifier: Some(Modifier::Close),
+                modifier: Modifier::Close,
                 motion: Motion("5".to_string()),
                 button: Button("S".to_string())
             }
@@ -324,7 +317,7 @@ mod tests {
         assert_eq!(
             created,
             Move {
-                modifier: Some(Modifier::SuperJump),
+                modifier: Modifier::SuperJump,
                 motion: Motion("236".to_string()),
                 button: Button("S".to_string())
             }

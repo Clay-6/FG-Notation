@@ -7,7 +7,7 @@ use crate::{numpad, CreationError};
 pub struct Move {
     button: Button,
     motion: Motion,
-    modifier: Option<Modifier>,
+    modifier: Modifier,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -45,6 +45,7 @@ pub enum Modifier {
     SuperJump,
     JumpCancel,
     TigerKnee,
+    None,
 }
 
 impl Move {
@@ -69,16 +70,16 @@ impl Move {
         })
     }
 
-    fn get_modifier(input: &mut String) -> Result<Option<Modifier>, CreationError> {
+    fn get_modifier(input: &mut String) -> Result<Modifier, CreationError> {
         if input.contains('.') {
             let prefix = input.chars().take_while(|c| *c != '.').collect::<String>();
             for _ in 0..prefix.len() {
                 (*input).remove(0);
             }
             (*input).remove(0);
-            Ok(Some(Modifier::new(prefix)?))
+            Ok(Modifier::new(prefix)?)
         } else {
-            Ok(None)
+            Ok(Modifier::None)
         }
     }
 }
@@ -219,6 +220,7 @@ impl fmt::Display for Modifier {
             Modifier::SuperJump => "sj.",
             Modifier::JumpCancel => "jc.",
             Modifier::TigerKnee => "tk.",
+            Modifier::None => "",
         };
         write!(f, "{}", prefix)
     }
@@ -258,7 +260,7 @@ mod tests {
             Move {
                 button: Button("HP".to_string()),
                 motion: Motion::QCF,
-                modifier: None
+                modifier: Modifier::None
             }
         )
     }
@@ -273,7 +275,7 @@ mod tests {
             Move {
                 button: Button("mk".to_string()),
                 motion: Motion::N,
-                modifier: Some(Modifier::Crouching)
+                modifier: Modifier::Crouching
             },
         )
     }
@@ -288,7 +290,7 @@ mod tests {
             Move {
                 button: Button("HK".to_string()),
                 motion: Motion::QCF,
-                modifier: Some(Modifier::TigerKnee)
+                modifier: Modifier::TigerKnee
             }
         )
     }
