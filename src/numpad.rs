@@ -122,10 +122,6 @@ impl Motion {
     {
         let m = m.to_string();
 
-        if m.is_empty() {
-            return Ok(Self("5".to_string()));
-        }
-
         if !m
             .chars()
             .all(|c| c.is_ascii_digit() || (c == '[' || c == ']'))

@@ -187,7 +187,14 @@ impl FromStr for Move {
 
 impl fmt::Display for Move {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{} {}", self.modifier, self.motion, self.button)
+        write!(
+            f,
+            "{}{}{}{}",
+            self.modifier,
+            self.motion,
+            if self.motion != Motion::N { " " } else { "" },
+            self.button
+        )
     }
 }
 
@@ -225,7 +232,7 @@ impl FromStr for Motion {
 impl fmt::Display for Motion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Motion::N => write!(f, "N"),
+            Motion::N => write!(f, ""),
             Motion::U => write!(f, "U"),
             Motion::D => write!(f, "D"),
             Motion::B => write!(f, "B"),
