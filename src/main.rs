@@ -20,8 +20,9 @@ fn main() -> Result<()> {
                 .iter()
                 .map(|m| n::Move::from(m.clone()))
                 .collect::<Vec<n::Move>>();
-            for mv in converted {
-                print!("{} ", mv)
+            print!("{}", converted[0]);
+            for mv in converted.iter().skip(1) {
+                print!(" -> {}", mv);
             }
         }
         cli::Target::Abbreviate { nump } => {
@@ -36,8 +37,9 @@ fn main() -> Result<()> {
                 .iter()
                 .map(|m| a::Move::from(m.clone()))
                 .collect::<Vec<a::Move>>();
-            for mv in converted {
-                print!("{} -> ", mv)
+            print!["{}", converted[0]];
+            for mv in converted.iter().skip(1) {
+                print! {" -> {}", mv}
             }
         }
     }
