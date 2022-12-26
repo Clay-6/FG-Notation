@@ -35,13 +35,13 @@ impl Move {
         let mut input = input.to_string().trim().to_string();
         let modifier = Self::get_modifier(&mut input)?;
         let motion = Motion::new(
-            &input
+            input
                 .chars()
                 .take_while(|c| !c.is_ascii_alphabetic())
                 .collect::<String>(),
         )?;
         let button = Button::new(
-            &input
+            input
                 .chars()
                 .skip_while(|c| !c.is_ascii_alphabetic())
                 .collect::<String>(),
