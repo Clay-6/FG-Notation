@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use crate::{numpad, CreationError};
 
+/// A move represented using [abbreviated notation](https://glossary.infil.net/?t=Notation)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Move {
     button: Button,
@@ -10,9 +11,12 @@ pub struct Move {
     modifier: Modifier,
 }
 
+/// An abreviated notation button
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Button(String);
 
+/// An abreviated notation motion
+#[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Motion {
     N,
@@ -35,6 +39,8 @@ pub enum Motion {
     Other(String),
 }
 
+// An abreviated notation modifier
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Modifier {
     Close,
@@ -49,6 +55,10 @@ pub enum Modifier {
 }
 
 impl Move {
+    /// Create a single [`Move`] from `input` that can be represented
+    /// as a string
+    ///
+    /// Returns a [`CreationError`] if any component of the input is invalid
     pub fn new<S>(input: S) -> Result<Self, CreationError>
     where
         S: ToString,
@@ -97,6 +107,11 @@ impl Move {
 }
 
 impl Button {
+    /// Create a [`Button`] from something that can be represented
+    /// as a string
+    ///
+    /// Returns a [`CreationError`] if the input contains non ASCII
+    /// alphabetic characters
     pub fn new<S>(b: S) -> Result<Self, CreationError>
     where
         S: ToString,
@@ -111,12 +126,17 @@ impl Button {
 }
 
 impl Modifier {
+    /// Create a [`Modifier`] from something that can be represented as
+    /// a string
+    ///
+    /// Returns a [`CreationError`] if the provided prefix cannot be
+    /// matched to a valid modifier
     pub fn new<S>(m: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
         let m = m.to_string();
-        match m.as_str() {
+        match m.to_lowercase().as_str() {
             "j." | "j" => Ok(Self::Jump),
             "sj." | "sj" => Ok(Self::SuperJump),
             "jc." | "jc" => Ok(Self::JumpCancel),
@@ -131,6 +151,8 @@ impl Modifier {
 }
 
 impl Motion {
+    /// Create a [`Motion`] from something that can be represented
+    /// as a string
     pub fn new<S>(m: S) -> Self
     where
         S: ToString,

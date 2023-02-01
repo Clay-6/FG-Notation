@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use crate::{abbreviated, CreationError};
 
+/// A move represented using [numpad notation](https://glossary.infil.net/?t=Numpad%20Notation)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Move {
     modifier: Modifier,
@@ -10,12 +11,16 @@ pub struct Move {
     button: Button,
 }
 
+/// A numpad notation motion
 #[derive(Debug, Clone, Eq)]
 pub struct Motion(String);
 
+/// A numpad notation button
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Button(String);
 
+/// A numpad notation modifier
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Modifier {
     Jump,
@@ -28,6 +33,11 @@ pub enum Modifier {
 }
 
 impl Move {
+    /// Create a [`Move`] from `input` that can be represented
+    /// as a string
+    ///
+    /// Returns a [`CreationError`] if any component of the input
+    /// is invalid
     pub fn new<S>(input: S) -> Result<Self, CreationError>
     where
         S: ToString,
@@ -81,13 +91,18 @@ impl Move {
 }
 
 impl Modifier {
+    /// Create a [`Modifier`] from something that can be represented
+    /// as a string
+    ///
+    /// Returns a [`CreationError`] if the provided prefix cannot
+    /// be matched to a valid modifier
     pub fn new<S>(m: S) -> Result<Self, CreationError>
     where
         S: ToString,
     {
         let m = m.to_string();
 
-        match m.as_str() {
+        match m.to_lowercase().as_str() {
             "j." | "j" => Ok(Self::Jump),
             "sj." | "sj" => Ok(Self::SuperJump),
             "jc." | "jc" => Ok(Self::JumpCancel),
@@ -100,6 +115,8 @@ impl Modifier {
 }
 
 impl Button {
+    /// Create a [`Button`] from something that can be represented as a
+    /// string
     pub fn new<S>(b: S) -> Result<Self, CreationError>
     where
         S: ToString,
@@ -116,6 +133,11 @@ impl Button {
 impl Motion {
     #![allow(clippy::len_without_is_empty)] // Not possible for `Motion` to be empty
 
+    /// Create a [`Motion`] from something that can be represented
+    /// as a string
+    ///
+    /// Will return a [`CreationError`] if the input contains
+    /// any characters other than ASCII digits or square brackets
     pub fn new<S>(m: S) -> Result<Self, CreationError>
     where
         S: ToString,
