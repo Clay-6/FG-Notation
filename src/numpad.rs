@@ -10,7 +10,7 @@ pub struct Move {
     button: Button,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Eq)]
 pub struct Motion(String);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -233,6 +233,12 @@ impl FromStr for Motion {
 impl fmt::Display for Motion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl PartialEq for Motion {
+    fn eq(&self, other: &Self) -> bool {
+        (self.0 == "" && other.0 == "5") || (self.0 == "5" && other.0 == "") || self.0 == other.0
     }
 }
 
