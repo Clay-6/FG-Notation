@@ -238,7 +238,9 @@ impl fmt::Display for Motion {
 
 impl PartialEq for Motion {
     fn eq(&self, other: &Self) -> bool {
-        (self.0 == "" && other.0 == "5") || (self.0 == "5" && other.0 == "") || self.0 == other.0
+        (self.0.is_empty() && other.0 == "5")
+            || (self.0 == "5" && other.0.is_empty())
+            || self.0 == other.0
     }
 }
 
