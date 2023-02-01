@@ -161,13 +161,12 @@ impl From<numpad::Move> for Move {
     fn from(m: numpad::Move) -> Self {
         let button = Button::from(m.button());
         let m_motion = m.motion();
-        let (motion, modifier) = if m_motion == numpad::Motion::new("2").unwrap() {
-            (Motion::N, Modifier::Crouching)
-        } else if m_motion == numpad::Motion::new("5").unwrap() {
-            (Motion::N, Modifier::Standing)
+        let motion = if m_motion.is_neutral() {
+            Motion::N
         } else {
-            (Motion::from(m_motion), Modifier::from(m.modifier()))
+            Motion::from(m_motion)
         };
+        let modifier = Modifier::from(m.modifier());
 
         Self {
             button,

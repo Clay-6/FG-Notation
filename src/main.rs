@@ -24,6 +24,7 @@ fn main() -> Result<()> {
             for mv in converted.iter().skip(1) {
                 print!(" -> {mv}");
             }
+            println!()
         }
         cli::Target::Abbreviate { nump } => {
             let moves = {
@@ -41,6 +42,7 @@ fn main() -> Result<()> {
             for mv in converted.iter().skip(1) {
                 print!(" -> {mv}")
             }
+            println!()
         }
     }
 
