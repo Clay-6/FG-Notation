@@ -263,7 +263,7 @@ impl fmt::Display for Modifier {
             Modifier::TigerKnee => "tk.",
             Modifier::None => "",
         };
-        write!(f, "{}", prefix)
+        write!(f, "{prefix}")
     }
 }
 

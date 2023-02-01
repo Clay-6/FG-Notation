@@ -22,7 +22,7 @@ fn main() -> Result<()> {
                 .collect::<Vec<n::Move>>();
             print!("{}", converted[0]);
             for mv in converted.iter().skip(1) {
-                print!(" -> {}", mv);
+                print!(" -> {mv}");
             }
         }
         cli::Target::Abbreviate { nump } => {
@@ -39,7 +39,7 @@ fn main() -> Result<()> {
                 .collect::<Vec<a::Move>>();
             print!["{}", converted[0]];
             for mv in converted.iter().skip(1) {
-                print! {" -> {}", mv}
+                print!(" -> {mv}")
             }
         }
     }

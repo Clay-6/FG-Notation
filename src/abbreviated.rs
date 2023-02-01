@@ -249,7 +249,7 @@ impl fmt::Display for Motion {
             Motion::RDP => write!(f, "RDP"),
             Motion::FullCircle => write!(f, "360"),
             Motion::Double360 => write!(f, "720"),
-            Motion::Other(o) => write!(f, "'{}'", o),
+            Motion::Other(o) => write!(f, "'{o}'"),
         }
     }
 }
@@ -289,7 +289,7 @@ impl fmt::Display for Modifier {
             Modifier::TigerKnee => "tk.",
             Modifier::None => "",
         };
-        write!(f, "{}", prefix)
+        write!(f, "{prefix}")
     }
 }
 
